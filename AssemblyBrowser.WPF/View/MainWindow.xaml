@@ -1,0 +1,33 @@
+﻿<Window x:Class="AssemblyBrowser.WPF.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:viewmodel="clr-namespace:AssemblyBrowser.WPF.ViewModel"
+        d:DataContext="{d:DesignInstance Type=viewmodel:AssemblyBrowserViewModel}"
+        mc:Ignorable="d"
+        Title="Assembly Browser" Height="450" Width="800">
+    <DockPanel LastChildFill="True" Margin="10">
+        <DockPanel DockPanel.Dock="Top" Height="50">
+            <Button DockPanel.Dock="Left" Margin="10" Height="30" Width="80" Content="Open file"
+                    Command ="{Binding SetFilePathCommand}"/>
+            <TextBox VerticalContentAlignment="Center" IsReadOnly="True" Margin="10" Height="30"
+                    Text = "{Binding FilePath}"/>
+        </DockPanel>
+        <DockPanel LastChildFill="True">
+            <Button DockPanel.Dock="Top" HorizontalAlignment="Left" Margin="10" Height="30" Width="180"
+                    Content="Show assembly information"
+                    Command ="{Binding StartScanningCommand}"/>
+            <TreeView Margin="10 0 10 10" ItemsSource="{Binding AssemblyTree.Children}">
+                <TreeView.ItemTemplate>
+                    <HierarchicalDataTemplate ItemsSource="{Binding Children}">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding Text}"/>
+                        </StackPanel>
+                    </HierarchicalDataTemplate>
+                </TreeView.ItemTemplate>
+            </TreeView>
+        </DockPanel>
+    </DockPanel>
+</Window>
+    

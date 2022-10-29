@@ -1,12 +1,18 @@
-﻿using System.Reflection;
+﻿using System.ComponentModel;
+using System.Linq;
+using System.Reflection;
+using System.Reflection.Metadata;
+using System.Runtime.CompilerServices;
 
 namespace AssemblyBrowser.Core
 {
-    public class AssemblyBrowser
+    public class AssemblyBrowser : INotifyPropertyChanged 
     {
+        public event PropertyChangedEventHandler? PropertyChanged;
+
         public AssemblyInformation GetAssemblyInformation(string filePath)
         {
-            AssemblyInformation assemblyInformation = new AssemblyInformation();
+            AssemblyInformation assemblyInformation = new AssemblyInformation(filePath);
             try
             {
                 Assembly asm = Assembly.LoadFrom(filePath);
@@ -40,28 +46,33 @@ namespace AssemblyBrowser.Core
                                     FieldInfo? fieldInfo = memberInfo as FieldInfo;
                                     if (fieldInfo != null)
                                     {
-                                        dataType.Members.Add(new DataMember(fieldInfo.Name, fieldInfo.FieldType.Name));
+                                        dataType.Fields.Add(new Field(fieldInfo.Name, fieldInfo.FieldType.Name));
                                     }
                                     break;
                                 case MemberTypes.Property:
                                     PropertyInfo? propertyInfo = memberInfo as PropertyInfo;
                                     if (propertyInfo != null)
                                     {
-                                        dataType.Members.Add(new DataMember(propertyInfo.Name, propertyInfo.PropertyType.Name));
+                                        dataType.Properties.Add(new Property(propertyInfo.Name, propertyInfo.PropertyType.Name));
                                     }
                                     break;
                                 case MemberTypes.Method:
                                     MethodInfo? methodInfo = memberInfo as MethodInfo;
                                     if (methodInfo != null)
                                     {
-                                        ActionMember method = new ActionMember(methodInfo.Name, methodInfo.ReturnType.Name);
+                                        var attributes = methodInfo.CustomAttributes;
+                                        if (attributes.Count(o => o.AttributeType == typeof(ExtensionAttribute)) > 0)
+                                        {
+                                            _namespace.DataTypes;
+                                        }
+                                        Method method = new Method(methodInfo.Name, methodInfo.ReturnType.Name);
                                         ParameterInfo[] parameters = methodInfo.GetParameters();
                                         method.Parameters = new Parameter[parameters.Length];
                                         for (int j = 0; j < parameters.Length; j++)
                                         {
                                             method.Parameters[j] = new Parameter(parameters[j].ParameterType.Name, parameters[j].Name);
                                         }
-                                        dataType.Members.Add(method);
+                                        dataType.Methods.Add(method);
                                     }
                                     break;
                             }
