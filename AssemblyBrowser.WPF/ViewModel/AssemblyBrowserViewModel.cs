@@ -1,4 +1,5 @@
 ﻿using AssemblyBrowser.Core;
+using AssemblyBrowser.WPF.Model;
 using Microsoft.Win32;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -37,7 +38,6 @@ namespace AssemblyBrowser.WPF.ViewModel
 
         public AssemblyBrowserViewModel()
         {
-            _assemblyTree = new TreeNode("");
             _assemblyBrowser = new Core.AssemblyBrowser();
             _filePath = "";
 
@@ -51,7 +51,7 @@ namespace AssemblyBrowser.WPF.ViewModel
 
             StartScanningCommand = new RelayCommand(obj =>
             {
-                AssemblyTree = AssemblyInformationConverter.ToTree(_assemblyBrowser.GetAssemblyInformation(FilePath));
+                AssemblyTree = AssemblyInformationConverter.ToTree(_assemblyBrowser.GetAssemblyInformation(FilePath, AssemblyBrowserFlags.OnlyDeclaredMembers));
             });
         }
 

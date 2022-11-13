@@ -22,7 +22,8 @@
                 <TreeView.ItemTemplate>
                     <HierarchicalDataTemplate ItemsSource="{Binding Children}">
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="{Binding Text}"/>
+                            <Image Source="{Binding Path=ImagePath}" MaxHeight="15" MaxWidth="15"/>
+                            <TextBlock Text="{Binding Path=Text}"/>
                         </StackPanel>
                     </HierarchicalDataTemplate>
                 </TreeView.ItemTemplate>

@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Windows;
-using AssemblyBrowser.WPF.ViewModel;
+﻿using System.Windows;
 
 namespace AssemblyBrowser.WPF
 {
@@ -14,9 +7,6 @@ namespace AssemblyBrowser.WPF
     /// </summary>
     public partial class App : Application
     {
-        public App()
-        {
-            AssemblyBrowserViewModel viewModel = new AssemblyBrowserViewModel();
-        }
+
     }
 }
