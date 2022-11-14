@@ -36,8 +36,7 @@ namespace AssemblyBrowser.Core
                             {
                                 case MemberTypes.Field:
                                     FieldInfo? fieldInfo = memberInfo as FieldInfo;
-                                    if (fieldInfo != null && 
-                                        fieldInfo.CustomAttributes.Count(o => o.AttributeType == typeof(CompilerGeneratedAttribute)) == 0)
+                                    if (fieldInfo != null && !fieldInfo.IsDefined(typeof(CompilerGeneratedAttribute)))
                                     {
                                         type.Fields.Add(new Field(fieldInfo));
                                     }
@@ -51,8 +50,7 @@ namespace AssemblyBrowser.Core
                                     break;
                                 case MemberTypes.Method:
                                     MethodInfo? methodInfo = memberInfo as MethodInfo;
-                                    if (methodInfo != null &&
-                                        methodInfo.CustomAttributes.Count(o => o.AttributeType == typeof(CompilerGeneratedAttribute)) == 0)
+                                    if (methodInfo != null && !methodInfo.IsDefined(typeof(CompilerGeneratedAttribute)))
                                     {
                                         AddMethodToClass(methodInfo, t[i], _namespace, type);
                                     }
@@ -92,7 +90,7 @@ namespace AssemblyBrowser.Core
             }
             else
             {
-                int index = _namespace.DataTypes.FindIndex(o => o.TypeName == t.Name);
+                int index = _namespace.Types.FindIndex(o => o.Name == t.Name);
                 dataType = GetOrCreateType(_namespace, t.Name);
                 method = new Method(methodInfo.Name, methodInfo.ReturnType.Name, accessModifier);
                 ParameterInfo[] parameters = methodInfo.GetParameters();
@@ -122,15 +120,15 @@ namespace AssemblyBrowser.Core
         private AssemblyClasses.Type GetOrCreateType(Namespace _namespace, string typeName)
         {
             AssemblyClasses.Type dataType;
-            int index = _namespace.DataTypes.FindIndex(o => o.TypeName == typeName);
+            int index = _namespace.Types.FindIndex(o => o.Name == typeName);
             if (index == -1)
             {
                 dataType = new AssemblyClasses.Type(typeName);
-                _namespace.DataTypes.Add(dataType);
+                _namespace.Types.Add(dataType);
             }
             else
             {
-                dataType = _namespace.DataTypes[index];
+                dataType = _namespace.Types[index];
             }
             return dataType;
         }

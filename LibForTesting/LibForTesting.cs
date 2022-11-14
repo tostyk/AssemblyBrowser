@@ -25,10 +25,10 @@
 }
 namespace Namespace2
 {
-    public class Class1
+    public class Class2
     {
         public string Field1;
-        public Class2 Property1 { private get; set; }
+        public int Property1 { private get; set; }
 
         public void Method1(string param1, int param2) { }
         public int Method2(string param3, int param4) { return 0; }

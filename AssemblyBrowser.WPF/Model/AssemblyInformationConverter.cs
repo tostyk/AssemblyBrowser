@@ -18,7 +18,7 @@ namespace AssemblyBrowser.WPF.Model
             foreach (Namespace ns in assemblyInformation.Namespaces)
             {
                 ObservableCollection<TreeNode> types = new();
-                foreach (Type dataType in ns.DataTypes)
+                foreach (Type dataType in ns.Types)
                 {
                     ObservableCollection<TreeNode> members = new();
                     foreach (Field field in dataType.Fields)
@@ -33,7 +33,7 @@ namespace AssemblyBrowser.WPF.Model
                     {
                         members.Add(NodeFromMethod(method));
                     }
-                    types.Add(new(dataType.TypeName, ClassImagePath, members));
+                    types.Add(new(dataType.Name, ClassImagePath, members));
                 }
                 namespases.Add(new(ns.Name, NamespaceImagePath, types));
             }
