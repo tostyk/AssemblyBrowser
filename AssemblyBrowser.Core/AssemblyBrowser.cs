@@ -1,14 +1,11 @@
-﻿using System.ComponentModel;
+﻿using AssemblyBrowser.Core.AssemblyClasses;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using AssemblyBrowser.Core.AssemblyClasses;
 
 namespace AssemblyBrowser.Core
 {
-    public class AssemblyBrowser : INotifyPropertyChanged 
+    public class AssemblyBrowser 
     {
-        public event PropertyChangedEventHandler? PropertyChanged;
-
         public AssemblyInformation GetAssemblyInformation(string filePath, AssemblyBrowserFlags flags)
         {
             AssemblyInformation assemblyInformation = new AssemblyInformation(filePath);
@@ -17,7 +14,7 @@ namespace AssemblyBrowser.Core
                 Assembly asm = Assembly.LoadFrom(filePath);
                 System.Type[] t = asm.GetTypes();
                 Namespace _namespace;
-                AssemblyClasses.Type dataType;
+                AssemblyClasses.Type type;
                 if (t != null)
                 {
                     for (int i = 0; i < t.Length; i++)
@@ -25,8 +22,13 @@ namespace AssemblyBrowser.Core
                         if (t[i].IsSubclassOf(typeof(Attribute)) && !flags.HasFlag(AssemblyBrowserFlags.Attributes))
                             continue;
                         _namespace = GetOrCreateNamespace(assemblyInformation, t[i].Namespace);
-                        dataType = GetOrCreateType(_namespace, t[i].Name);
-                        foreach (MemberInfo memberInfo in t[i].GetMembers())
+                        type = GetOrCreateType(_namespace, t[i].Name);
+                        MemberInfo[] members = t[i].GetMembers(
+                            BindingFlags.Instance | 
+                            BindingFlags.NonPublic | 
+                            BindingFlags.Public | 
+                            BindingFlags.Static);
+                        foreach (MemberInfo memberInfo in members)
                         {
                             if (memberInfo.DeclaringType != t[i] && flags.HasFlag(AssemblyBrowserFlags.OnlyDeclaredMembers))
                                 continue;
@@ -34,23 +36,25 @@ namespace AssemblyBrowser.Core
                             {
                                 case MemberTypes.Field:
                                     FieldInfo? fieldInfo = memberInfo as FieldInfo;
-                                    if (fieldInfo != null)
+                                    if (fieldInfo != null && 
+                                        fieldInfo.CustomAttributes.Count(o => o.AttributeType == typeof(CompilerGeneratedAttribute)) == 0)
                                     {
-                                        dataType.Fields.Add(new Field(fieldInfo.Name, fieldInfo.FieldType.Name));
+                                        type.Fields.Add(new Field(fieldInfo));
                                     }
                                     break;
                                 case MemberTypes.Property:
                                     PropertyInfo? propertyInfo = memberInfo as PropertyInfo;
                                     if (propertyInfo != null)
                                     {
-                                        dataType.Properties.Add(new Property(propertyInfo.Name, propertyInfo.PropertyType.Name));
+                                        type.Properties.Add(new Property(propertyInfo));
                                     }
                                     break;
                                 case MemberTypes.Method:
                                     MethodInfo? methodInfo = memberInfo as MethodInfo;
-                                    if (methodInfo != null)
+                                    if (methodInfo != null &&
+                                        methodInfo.CustomAttributes.Count(o => o.AttributeType == typeof(CompilerGeneratedAttribute)) == 0)
                                     {
-                                        AddMethodToClass(methodInfo, t[i], _namespace, dataType);
+                                        AddMethodToClass(methodInfo, t[i], _namespace, type);
                                     }
                                     break;
                             }
@@ -67,33 +71,38 @@ namespace AssemblyBrowser.Core
         private void AddMethodToClass(MethodInfo methodInfo, System.Type t, Namespace _namespace, AssemblyClasses.Type dataType)
         {
             var attributes = methodInfo.CustomAttributes;
+            Method method;
+            AccessModifier accessModifier = 0;
+            if (methodInfo.IsPublic) accessModifier = AccessModifier.Public;
+            if (methodInfo.IsPrivate) accessModifier = AccessModifier.Private;
+            if (methodInfo.IsFamily) accessModifier = AccessModifier.Protected;
+            if (methodInfo.IsAssembly) accessModifier = AccessModifier.Internal;
             // Current method is extension method
             if (attributes.Count(o => o.AttributeType == typeof(ExtensionAttribute)) > 0)
             {
                 string typeName = methodInfo.GetParameters()[0].ParameterType.Name;
                 dataType = GetOrCreateType(_namespace, typeName);
-                Method method = new Method(methodInfo.Name, methodInfo.ReturnType.Name, true);
+                method = new Method(methodInfo.Name, methodInfo.ReturnType.Name, accessModifier, true);
                 ParameterInfo[] parameters = methodInfo.GetParameters();
                 method.Parameters = new Parameter[parameters.Length - 1];
                 for (int j = 1; j < parameters.Length; j++)
                 {
                     method.Parameters[j] = new Parameter(parameters[j].ParameterType.Name, parameters[j].Name);
                 }
-                dataType.Methods.Add(method);
             }
             else
             {
                 int index = _namespace.DataTypes.FindIndex(o => o.TypeName == t.Name);
                 dataType = GetOrCreateType(_namespace, t.Name);
-                Method method = new Method(methodInfo.Name, methodInfo.ReturnType.Name);
+                method = new Method(methodInfo.Name, methodInfo.ReturnType.Name, accessModifier);
                 ParameterInfo[] parameters = methodInfo.GetParameters();
                 method.Parameters = new Parameter[parameters.Length];
                 for (int j = 0; j < parameters.Length; j++)
                 {
                     method.Parameters[j] = new Parameter(parameters[j].ParameterType.Name, parameters[j].Name);
                 }
-                dataType.Methods.Add(method);
             }
+            dataType.Methods.Add(method);
         }
         private Namespace GetOrCreateNamespace(AssemblyInformation ai, string namespaceName)
         {
