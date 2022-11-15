@@ -13,7 +13,7 @@ namespace AssemblyBrowser.WPF.Model
         const string AssemblyImagePath = "images/Assembly.png";
         public static TreeNode ToTree(AssemblyInformation assemblyInformation)
         {
-            TreeNode result;
+            TreeNode result;    
             ObservableCollection<TreeNode> namespases = new ObservableCollection<TreeNode>();
             foreach (Namespace ns in assemblyInformation.Namespaces)
             {

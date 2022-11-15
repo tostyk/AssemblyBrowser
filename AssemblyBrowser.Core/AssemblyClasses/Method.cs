@@ -4,11 +4,11 @@ namespace AssemblyBrowser.Core.AssemblyClasses
 {
     public class Method
     {
-        public string Name;
-        public string ReturnType;
-        public bool IsExtensionMethod;
-        public AccessModifier AccessModifier;
-        public Parameter[] Parameters;
+        public string Name { get; }
+        public string ReturnType { get; }
+        public bool IsExtensionMethod { get; }
+        public AccessModifier AccessModifier { get; }
+        public Parameter[] Parameters { get; internal set; }
         public Method(string name, string returnType, AccessModifier accessModifier)
         {
             Name = name;

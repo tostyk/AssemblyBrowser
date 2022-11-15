@@ -1,9 +1,12 @@
 ﻿using AssemblyBrowser.Core;
+using AssemblyBrowser.Core.AssemblyClasses;
 using AssemblyBrowser.WPF.Model;
 using Microsoft.Win32;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
 using System.Runtime.CompilerServices;
+using System.Windows;
 
 namespace AssemblyBrowser.WPF.ViewModel
 {
@@ -44,6 +47,8 @@ namespace AssemblyBrowser.WPF.ViewModel
             SetFilePathCommand = new RelayCommand(obj =>
             {
                 OpenFileDialog openFileDialog = new OpenFileDialog();
+                openFileDialog.DefaultExt = ".dll";
+                openFileDialog.Filter = "Assembly (.dll)|*.dll";
                 bool? isOK = openFileDialog.ShowDialog();
                 if (isOK != null && (bool)isOK)
                     FilePath = openFileDialog.FileName;
@@ -51,7 +56,15 @@ namespace AssemblyBrowser.WPF.ViewModel
 
             StartScanningCommand = new RelayCommand(obj =>
             {
-                AssemblyTree = AssemblyInformationConverter.ToTree(_assemblyBrowser.GetAssemblyInformation(FilePath, AssemblyBrowserFlags.OnlyDeclaredMembers));
+                AssemblyInformation assemblyInformation = _assemblyBrowser.GetAssemblyInformation(FilePath, AssemblyBrowserFlags.OnlyDeclaredMembers);
+                if (assemblyInformation.Exception == null)
+                {
+                    AssemblyTree = AssemblyInformationConverter.ToTree(assemblyInformation);
+                }
+                else
+                {
+                    MessageBox.Show(assemblyInformation.Exception?.Message, "Error");
+                }
             });
         }
 

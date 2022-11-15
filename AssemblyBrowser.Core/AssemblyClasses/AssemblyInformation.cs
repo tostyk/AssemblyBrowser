@@ -2,11 +2,13 @@
 {
     public class AssemblyInformation
     {
-        public string AssemblyName;
-        public List<Namespace> Namespaces = new List<Namespace>();
+        public string AssemblyName { get; }
+        public List<Namespace> Namespaces { get; internal set; }
+        public Exception Exception { get; internal set; }
         public AssemblyInformation(string name)
         {
             AssemblyName = name;
+            Namespaces = new List<Namespace>();
         }
     }
 }

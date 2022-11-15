@@ -2,11 +2,12 @@
 {
     public class Namespace
     {
-        public string Name;
-        public List<Type> Types = new List<Type>();
+        public string Name { get; }
+        public List<Type> Types { get; internal set; }
         public Namespace(string name)
         {
             Name = name;
+            Types = new List<Type>();
         }
     }
 }

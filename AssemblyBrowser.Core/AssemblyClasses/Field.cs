@@ -4,9 +4,9 @@ namespace AssemblyBrowser.Core.AssemblyClasses
 {
     public class Field
     {
-        public string Name;
-        public string Type;
-        public AccessModifier AccessModifier;
+        public string Name { get; }
+        public string Type { get; }
+        public AccessModifier AccessModifier { get; }
         public Field(string name, string type, AccessModifier accessModifier)
         {
             Name = name;

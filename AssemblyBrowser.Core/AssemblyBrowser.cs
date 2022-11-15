@@ -28,41 +28,44 @@ namespace AssemblyBrowser.Core
                             BindingFlags.NonPublic | 
                             BindingFlags.Public | 
                             BindingFlags.Static);
-                        foreach (MemberInfo memberInfo in members)
+                        try
                         {
-                            if (memberInfo.DeclaringType != t[i] && flags.HasFlag(AssemblyBrowserFlags.OnlyDeclaredMembers))
-                                continue;
-                            switch (memberInfo.MemberType)
+                            foreach (MemberInfo memberInfo in members)
                             {
-                                case MemberTypes.Field:
-                                    FieldInfo? fieldInfo = memberInfo as FieldInfo;
-                                    if (fieldInfo != null && !fieldInfo.IsDefined(typeof(CompilerGeneratedAttribute)))
-                                    {
-                                        type.Fields.Add(new Field(fieldInfo));
-                                    }
-                                    break;
-                                case MemberTypes.Property:
-                                    PropertyInfo? propertyInfo = memberInfo as PropertyInfo;
-                                    if (propertyInfo != null)
-                                    {
-                                        type.Properties.Add(new Property(propertyInfo));
-                                    }
-                                    break;
-                                case MemberTypes.Method:
-                                    MethodInfo? methodInfo = memberInfo as MethodInfo;
-                                    if (methodInfo != null && !methodInfo.IsDefined(typeof(CompilerGeneratedAttribute)))
-                                    {
-                                        AddMethodToClass(methodInfo, t[i], _namespace, type);
-                                    }
-                                    break;
+                                if (memberInfo.DeclaringType != t[i] && flags.HasFlag(AssemblyBrowserFlags.OnlyDeclaredMembers))
+                                    continue;
+                                switch (memberInfo.MemberType)
+                                {
+                                    case MemberTypes.Field:
+                                        FieldInfo? fieldInfo = memberInfo as FieldInfo;
+                                        if (fieldInfo != null && !fieldInfo.IsDefined(typeof(CompilerGeneratedAttribute)))
+                                        {
+                                            type.Fields.Add(new Field(fieldInfo));
+                                        }
+                                        break;
+                                    case MemberTypes.Property:
+                                        PropertyInfo? propertyInfo = memberInfo as PropertyInfo;
+                                        if (propertyInfo != null)
+                                        {
+                                            type.Properties.Add(new Property(propertyInfo));
+                                        }
+                                        break;
+                                    case MemberTypes.Method:
+                                        MethodInfo? methodInfo = memberInfo as MethodInfo;
+                                        if (methodInfo != null && !methodInfo.IsDefined(typeof(CompilerGeneratedAttribute)))
+                                        {
+                                            AddMethodToClass(methodInfo, t[i], _namespace, type);
+                                        }
+                                        break;
+                                }
                             }
-                        }
+                        } catch (Exception) { }
                     }
                 }
             }
             catch (Exception e) 
-            { 
-                Console.WriteLine(e.Message);
+            {
+                assemblyInformation.Exception = e;
             }
             return assemblyInformation;
         }

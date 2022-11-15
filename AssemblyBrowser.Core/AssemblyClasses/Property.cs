@@ -4,15 +4,12 @@ namespace AssemblyBrowser.Core.AssemblyClasses
 {
     public class Property
     {
-        public string Name;
-        public string Type;
-        public AccessModifier AccessModifier;
-        public AccessModifier GetterModifier;
-        public AccessModifier SetterModifier;
-        public Property()
-        {
-
-        }
+        public string Name { get; }
+        public string Type { get; }
+        public AccessModifier AccessModifier { get; }
+        public AccessModifier GetterModifier { get; }
+        public AccessModifier SetterModifier { get; }
+        public Property() { }
         public Property(PropertyInfo propertyInfo)
         {
             Name = propertyInfo.Name;
